@@ -15,7 +15,7 @@ namespace Pooldl
 
         private static void userInput()
         {
-            
+
             Console.WriteLine("Please enter either:\n");
             Console.WriteLine("- Pool URL / ID (e.g. https://e621.net/pools/8804)\n");
             Console.WriteLine("- Pool ID (e.g. 7438) \n");
@@ -65,16 +65,16 @@ namespace Pooldl
 
             try
             {
-            string json = client.DownloadString($"https://e621.net/pools/{poolID}.json");
+                string json = client.DownloadString($"https://e621.net/pools/{poolID}.json");
 
-            var pool = JsonSerializer.Deserialize<GetJson>(json);
+                var pool = JsonSerializer.Deserialize<Pools>(json);
 
-            string title = pool.name.Replace("_", " ");
-            string creator = pool.creator_name.Replace("_", " ");
+                string title = pool.name.Replace("_", " ");
+                string creator = pool.creator_name.Replace("_", " ");
 
-            Console.WriteLine($"Downloading: {title} by {creator}");
+                Console.WriteLine($"Downloading: {title} by {creator}");
 
-            downloadPool(pool.post_ids, pool);
+                downloadPool(pool.post_ids, pool);
             }
             catch (WebException)
             {
@@ -85,7 +85,7 @@ namespace Pooldl
             }
         }
 
-        private static void downloadPool(int[] post_ids, GetJson pool)
+        private static void downloadPool(int[] post_ids, Pools pool)
         {
             var num = 1;
             WebClient client = new WebClient();
@@ -96,24 +96,25 @@ namespace Pooldl
 
             for (int i = 0; i < pool.post_ids.Length; i++)
             {
-                
+
                 postIDs[i] = pool.post_ids[i];
                 Console.WriteLine($"Downloading post {i + 1} of {pool.post_ids.Length}");
-                
+
                 client.Headers.Clear();
                 client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
 
-                string jsonFile = client.DownloadString($"https://e621.net/posts/{postIDs[i]}.json");
+                string jsonFile = client.DownloadString($"https://e621.net/posts.json?tags=id:{postIDs[i]}");
 
-                var File = JsonSerializer.Deserialize<Sample>(jsonFile);
+                var FileUrl = JsonSerializer.Deserialize<File>(jsonFile);
 
-                Console.WriteLine(File.url);
+                Console.WriteLine(FileUrl.url);
 
-                Console.WriteLine($"https://e621.net/posts/{postIDs[i]}.json");
+                Console.WriteLine($"https://e621.net/posts.json?tags=id:{postIDs[i]}");
 
-
-                //client.DownloadFile($"{posts.url}", $"./{name.id}.{posts.ext}");
+                client.DownloadFile($"{FileUrl.url}", $"{num}.{FileUrl.ext}");
                 num++;
+
+                Thread.Sleep(1000);
 
                 ////skip if value is null
                 //if (posts.url is null)
@@ -126,6 +127,8 @@ namespace Pooldl
                 //    //download file, save in pool folder
 
                 //}
+
+
             }
 
         }

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading;
-using static System.Net.WebRequestMethods;
 
 namespace Pooldl
 {

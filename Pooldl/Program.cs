@@ -103,9 +103,14 @@ namespace Pooldl
                 client.Headers.Clear();
                 client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
 
-                string jsonFile = client.DownloadString($"https://e621.net/posts.json?tags=id:{postIDs[i]}");
+                string jsonFile = client.DownloadString($"https://e621.net/posts/{postIDs[i]}.json");
 
-                var FileUrl = JsonSerializer.Deserialize<File>(jsonFile);
+                var response = JsonSerializer.Deserialize<PostResponse>(jsonFile);
+
+                //download file from url
+
+
+                var FileUrl = response.post.file;
 
                 Console.WriteLine(FileUrl.url);
 

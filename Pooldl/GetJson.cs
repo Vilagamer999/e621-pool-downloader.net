@@ -11,13 +11,21 @@ namespace Pooldl
         public string creator_name { get; set; }
     }
 
-    public class File
+    public class PostResponse
     {
-        public int width { get; set; }
-        public int height { get; set; }
-        public string ext { get; set; }
-        public int size { get; set; }
-        public string md5 { get; set; }
-        public string url { get; set; }
+        public class File
+        {
+            public string url { get; set; }
+            public string ext { get; set; }
+        }
+
+        public class Post
+        {
+            public File file { get; set; } = new File();
+        }
+
+        // posts/{id}.json 
+        public Post post { get; set; } = new Post();
+
     }
 }

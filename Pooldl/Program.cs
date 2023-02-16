@@ -1,7 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
+using static System.Net.WebRequestMethods;
 
 namespace Pooldl
 {
@@ -21,15 +24,16 @@ namespace Pooldl
             Console.WriteLine("- Pool ID (e.g. 7438) \n");
             Console.WriteLine("- \"lucky\" (Will download a random pool) \n");
             Console.Write("> ");
-            string input = Console.ReadLine();
+            string input = Console.ReadLine().ToLower();
 
             //check if input is "lucky"
-            if (input == "lucky")
+            if (input == "lucky" || input == "l")
             {
-                //get random pool id
                 Random rnd = new Random();
                 int poolID = rnd.Next(1, 32651);
+                
                 Console.WriteLine("Downloading pool: " + poolID);
+
                 getPool(poolID);
 
             }
@@ -79,7 +83,7 @@ namespace Pooldl
             catch (WebException)
             {
                 Console.WriteLine("\nPool not found");
-                Thread.Sleep(500);
+                Thread.Sleep(3000);
                 Console.Clear();
                 userInput();
             }
@@ -92,49 +96,42 @@ namespace Pooldl
             client.Headers.Clear();
             client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
 
+            Directory.CreateDirectory($"{pool.name}");
+
+
             int[] postIDs = new int[pool.post_ids.Length];
 
             for (int i = 0; i < pool.post_ids.Length; i++)
             {
-
-                postIDs[i] = pool.post_ids[i];
-                Console.WriteLine($"Downloading post {i + 1} of {pool.post_ids.Length}");
-
                 client.Headers.Clear();
                 client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
 
+                postIDs[i] = pool.post_ids[i];
+                Console.WriteLine($"\nDownloading post {i + 1} of {pool.post_ids.Length}");
+
                 string jsonFile = client.DownloadString($"https://e621.net/posts/{postIDs[i]}.json");
-
-                var response = JsonSerializer.Deserialize<PostResponse>(jsonFile);
-
-                //download file from url
-
-
-                var FileUrl = response.post.file;
+                var FileUrl = JsonSerializer.Deserialize<PostResponse>(jsonFile).post.file;
 
                 Console.WriteLine(FileUrl.url);
 
-                Console.WriteLine($"https://e621.net/posts.json?tags=id:{postIDs[i]}");
+                if (FileUrl.url is null)
+                {
+                    Console.WriteLine("Skipping");
+                    continue;
+                }
+                else
+                {
+                    client.DownloadFile($"{FileUrl.url}", $"{pool.name}/{num}.{FileUrl.ext}");
 
-                client.DownloadFile($"{FileUrl.url}", $"{num}.{FileUrl.ext}");
-                num++;
-
-                Thread.Sleep(1000);
-
-                ////skip if value is null
-                //if (posts.url is null)
-                //{
-                //    Console.WriteLine("Skipping");
-                //    continue;
-                //}
-                //else
-                //{
-                //    //download file, save in pool folder
-
-                //}
-
-
+                    Thread.Sleep(1000);
+                    num++;
+                }
             }
+
+            Console.WriteLine("\nFinished! Press enter to download another pool...");
+            Console.ReadLine();
+            Console.Clear();
+            userInput();
 
         }
     }

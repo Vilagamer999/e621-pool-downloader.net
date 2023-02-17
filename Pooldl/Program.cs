@@ -27,16 +27,30 @@ namespace Pooldl
             //check if input is "lucky"
             if (input == "lucky" || input == "l")
             {
-                Random rnd = new Random();
-                int poolID = rnd.Next(1, 32651);
-                
-                Console.WriteLine("Downloading pool: " + poolID);
 
-                getPool(poolID);
+            This_makes_csharp_developers_cry:
+
+                Random rnd = new Random();
+                int poolID = rnd.Next(20000, 99999);//32651);
+
+
+                if (checkIfValid(poolID))
+                {
+                    Console.WriteLine("\nDownloading pool: " + poolID);
+
+                    getPool(poolID);
+
+                }
+                else if (checkIfValid(poolID) == false)
+                {
+                    goto This_makes_csharp_developers_cry;
+                }
 
             }
             else
             {
+
+
                 //check if input is a pool url
                 if (input.Contains("https://e621.net/pools/"))
                 {
@@ -57,6 +71,27 @@ namespace Pooldl
                 }
             }
 
+        }
+
+        private static bool checkIfValid(int poolID)
+        {
+            WebClient client = new WebClient();
+            client.Headers.Clear();
+            client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
+
+            try
+            {
+                string json = client.DownloadString($"https://e621.net/pools/{poolID}.json");
+                JsonSerializer.Deserialize<Pools>(json);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Random number invalid, retrying...");
+                Thread.Sleep(1000);
+                return false;
+            }
         }
 
         private static void getPool(int poolID)
@@ -96,7 +131,6 @@ namespace Pooldl
 
             Directory.CreateDirectory($"{pool.name}");
 
-
             int[] postIDs = new int[pool.post_ids.Length];
 
             for (int i = 0; i < pool.post_ids.Length; i++)
@@ -112,17 +146,19 @@ namespace Pooldl
 
                 Console.WriteLine(FileUrl.url);
 
-                if (FileUrl.url is null)
-                {
-                    Console.WriteLine("Skipping");
-                    continue;
-                }
-                else
+                try
                 {
                     client.DownloadFile($"{FileUrl.url}", $"{pool.name}/{num}.{FileUrl.ext}");
 
-                    Thread.Sleep(1000);
+                    Thread.Sleep(900);
                     num++;
+                }
+                catch (WebException)
+                {
+
+                    Console.WriteLine("Skipping");
+                    continue;
+
                 }
             }
 

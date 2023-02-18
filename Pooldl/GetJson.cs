@@ -23,8 +23,6 @@ namespace Pooldl
         {
             public File file { get; set; } = new File();
         }
-
-        // posts/{id}.json 
         public Post post { get; set; } = new Post();
 
     }

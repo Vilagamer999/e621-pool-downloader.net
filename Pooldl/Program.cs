@@ -11,6 +11,9 @@ namespace Pooldl
 
         static void Main(string[] args)
         {
+            Directory.CreateDirectory($"downloaded");
+            Directory.CreateDirectory($"log");
+
             userInput();
         }
 
@@ -31,13 +34,12 @@ namespace Pooldl
             This_makes_csharp_developers_cry:
 
                 Random rnd = new Random();
-                int poolID = rnd.Next(20000, 99999);//32651);
+                int poolID = rnd.Next(1, 32651);
 
 
                 if (checkIfValid(poolID))
                 {
                     Console.WriteLine("\nDownloading pool: " + poolID);
-
                     getPool(poolID);
 
                 }
@@ -45,32 +47,83 @@ namespace Pooldl
                 {
                     goto This_makes_csharp_developers_cry;
                 }
-
             }
             else
             {
-
-
                 //check if input is a pool url
                 if (input.Contains("https://e621.net/pools/"))
                 {
-                    //get pool id from url
-                    string poolID = input.Substring(20);
-                    getPool(Convert.ToInt32(poolID));
+                    try
+                    {
+                        //get pool id from url
+                        string poolID = input.Substring(23);
+                        getPool(Convert.ToInt32(poolID));
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is FormatException || ex is OverflowException)
+                        {
+                            Console.WriteLine("\nInvalid input, try again...");
+                            Thread.Sleep(1000);
+                            Console.Clear();
+                            userInput();
+                        }
+
+                        throw;
+                    }
+
                 }
                 else if (input.Contains("e621.net/pools/"))
                 {
-                    //get pool id from url (short)
-                    string poolID = input.Substring(12);
-                    getPool(Convert.ToInt32(poolID));
+                    //get pool id from url(short)
+                    string poolID = input.Substring(15);
+
+                    try
+                    {
+                        getPool(Convert.ToInt32(poolID));
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is FormatException || ex is OverflowException)
+                        {
+                            Console.WriteLine("\nInvalid input, try again...");
+                            Thread.Sleep(1000);
+                            Console.Clear();
+                            userInput();
+                        }
+
+                        throw;
+                    }
                 }
                 else
                 {
-                    //input is a pool id
-                    getPool(Convert.ToInt32(input));
+                    try
+                    {
+                        //input is a pool id
+                        getPool(Convert.ToInt32(input));
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is FormatException || ex is OverflowException)
+                        {
+                            Console.WriteLine("\nInvalid input, try again...");
+                            Thread.Sleep(1000);
+                            Console.Clear();
+                            userInput();
+                        }
+
+                        throw;
+                    }
+
                 }
             }
 
+        }
+
+        private static object removeInvalidChars(string name)
+        {
+            //jankman says hi
+            return name.Replace(":", "").Replace("?", "").Replace("_", " ").Replace("'", "").Replace("*", " ");
         }
 
         private static bool checkIfValid(int poolID)
@@ -106,10 +159,7 @@ namespace Pooldl
 
                 var pool = JsonSerializer.Deserialize<Pools>(json);
 
-                string title = pool.name.Replace("_", " ");
-                string creator = pool.creator_name.Replace("_", " ");
-
-                Console.WriteLine($"Downloading: {title} by {creator}");
+                Console.WriteLine($"Downloading: {removeInvalidChars(pool.name)} by {removeInvalidChars(pool.creator_name)}");
 
                 downloadPool(pool.post_ids, pool);
             }
@@ -129,7 +179,7 @@ namespace Pooldl
             client.Headers.Clear();
             client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
 
-            Directory.CreateDirectory($"{pool.name}");
+            Directory.CreateDirectory($"downloaded/{removeInvalidChars(pool.name)}");
 
             int[] postIDs = new int[pool.post_ids.Length];
 
@@ -148,7 +198,7 @@ namespace Pooldl
 
                 try
                 {
-                    client.DownloadFile($"{FileUrl.url}", $"{pool.name}/{num}.{FileUrl.ext}");
+                    client.DownloadFile($"{FileUrl.url}", $"downloaded/{removeInvalidChars(pool.name)}/{num}.{FileUrl.ext}");
 
                     Thread.Sleep(900);
                     num++;
@@ -162,7 +212,8 @@ namespace Pooldl
                 }
             }
 
-            Console.WriteLine("\nFinished! Press enter to download another pool...");
+            Console.WriteLine($"\nSaved to: pooldl/downloaded/{removeInvalidChars(pool.name)}");
+            Console.WriteLine("Finished! Press enter to download another pool...");
             Console.ReadLine();
             Console.Clear();
             userInput();

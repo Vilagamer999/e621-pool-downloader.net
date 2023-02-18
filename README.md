@@ -1,2 +1,3 @@
-# Pooldl.net
-why are you here huh???
+# Pooldl.net - A e621 pool downloader written in C#
+
+

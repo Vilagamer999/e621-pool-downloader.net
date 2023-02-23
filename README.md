@@ -11,7 +11,7 @@ Extreme levels of degeneracy ahead, if you have come across this by chance and d
 
 # Installation
 
-1. Go to the [releases page](Pooldl.net/releases)
+1. Go to the [releases page](/releases)
 2. Download `PooldlNet.zip`
 3. Run `Pooldl.exe`
 

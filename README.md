@@ -19,4 +19,4 @@ Extreme levels of degeneracy ahead, if you have come across this by chance and d
 ![image](https://user-images.githubusercontent.com/30276916/219872664-8e2a13a1-68ba-424a-8f20-55843f24e814.png)
 
 ## Disclamer
-By using the software you agree that you are 18 years of age or more.
+By using this software you agree that you are 18 years of age or more.

@@ -7,7 +7,7 @@
 - [Screenshots](#screenshots)
 
 ## Warning
-Extreme levels of degeneracy ahead, if you have come across this by chance and don't know what the website is, spare yourself and don't go on it. The rabbit hole is very deep on this one.
+Extreme levels of degeneracy ahead, if you have come across this by chance and don't know what the website is, spare yourself and don't go on it. The rabbit hole is very deep on this one~
 
 # Installation
 

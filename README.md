@@ -1,4 +1,5 @@
 ![pooldlnetlogo](https://user-images.githubusercontent.com/30276916/221160656-ef1a42c8-9f13-41cc-a558-cd7c6c8c652b.png)
+(yes, the oficcial c#.NET logo contains a hexagon, I wish I was making this up)
 # Pooldl.net - A e621 pool downloader written in C#
 
 ### Index:

@@ -15,7 +15,7 @@ After lots of frustration and keyboard bashing (and also the very helpful people
 # Installation
 
 1. Go to the [releases page](https://github.com/Vilagamer999/Pooldl.net/releases)
-2. Download `PooldlNet.zip`
+2. Download `e621-pool-downloader.zip`
 3. Run `Pooldl.exe`
 
 # Screenshots

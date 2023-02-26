@@ -19,7 +19,7 @@ After lots of frustration and keyboard bashing (and also the very helpful people
 3. Run `Pooldl.exe`
 
 # Screenshots
-![image](https://user-images.githubusercontent.com/30276916/219872664-8e2a13a1-68ba-424a-8f20-55843f24e814.png)
+![screenshots_pooldl](https://user-images.githubusercontent.com/30276916/221411060-33833b24-5e5a-497b-abed-f3ab04b4d91c.png)
 
 ## Disclamer
 By using this software you agree that you are 18 years of age or more.

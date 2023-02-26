@@ -14,7 +14,20 @@ namespace Pooldl
             Directory.CreateDirectory($"downloaded");
             Directory.CreateDirectory($"log");
 
-            userInput();
+            try
+            {
+                userInput();
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText($"log/{DateTime.Now.ToString("dd-MM-yyyy HH-mm-ss")}.log", ex.ToString());
+                Console.WriteLine("An error has occured (probably invalid or blacklisted pool), please check the log folder.");
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+                Console.Clear();
+                userInput();
+            }
+
         }
 
         private static void userInput()
@@ -213,8 +226,8 @@ namespace Pooldl
             }
 
             Console.WriteLine($"\nSaved to: pooldl/downloaded/{removeInvalidChars(pool.name)}");
-            Console.WriteLine("Finished! Press enter to download another pool...");
-            Console.ReadLine();
+            Console.Write("\nFinished! Press enter to download another pool...");
+            Console.ReadKey();
             Console.Clear();
             userInput();
 

@@ -18,8 +18,6 @@ namespace Pooldl
             Directory.CreateDirectory($"log");
             Console.Title = "e621-pool-downloader.net";
 
-            printLogo();
-
             try
             {
                 userInput();
@@ -32,7 +30,7 @@ namespace Pooldl
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
                 Console.Clear();
-                userInput();
+                Main(args);
             }
 
         }
@@ -40,7 +38,8 @@ namespace Pooldl
         //Prompt the user to input a pool URL or ID, or type 'lucky' to download a random pool
         private static void userInput()
         {
-
+            printLogo();
+            
             Console.WriteLine("Please enter either:\n");
             Console.WriteLine("- Pool URL / ID (e.g. https://e621.net/pools/8804)\n");
             Console.WriteLine("- Pool ID (e.g. 7438) \n");
@@ -205,8 +204,8 @@ namespace Pooldl
             catch (WebException)
             {
                 //Write an error message to the console if pool is not found
-                Console.WriteLine("\nPool not found");
-                Thread.Sleep(3000);
+                Console.WriteLine("\nPool not found...");
+                Thread.Sleep(1000);
                 Console.Clear();
                 userInput();
             }
@@ -249,7 +248,7 @@ namespace Pooldl
 
                     Thread.Sleep(900);
                 }
-                catch (WebException)
+                catch (Exception)
                 {
                     //Write a skipping message to the console and continue with the next post ID if download fails
                     Console.WriteLine("Skipping");

@@ -16,11 +16,10 @@ namespace Pooldl
         {
             Directory.CreateDirectory($"downloaded");
             Directory.CreateDirectory($"log");
-
             Console.Title = "e621-pool-downloader.net";
-            
+
             printLogo();
-            
+
             try
             {
                 userInput();
@@ -52,7 +51,7 @@ namespace Pooldl
             //Check if the input is "lucky"
             if (input == "lucky" || input == "l")
             {
-                
+
             //Keep generating random pool IDs until a valid one is found
             This_makes_csharp_developers_cry:
                 Random rnd = new Random();
@@ -179,7 +178,7 @@ namespace Pooldl
                 //Print an error message if the pool does not exist or is invalid and return false
                 Console.WriteLine("Random number invalid, retrying...");
                 Thread.Sleep(1000);
-                
+
                 return false;
             }
         }
@@ -211,13 +210,13 @@ namespace Pooldl
                 Console.Clear();
                 userInput();
             }
-            
+
         }
 
         //Download the individual images one by one using the pool data above
         private static void downloadPool(int[] post_ids, Pools pool)
         {
-            
+
             client.Headers.Clear();
             client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
 
@@ -234,7 +233,7 @@ namespace Pooldl
 
                 postIDs[i] = pool.post_ids[i];
                 Console.WriteLine($"\nDownloading post {i + 1} of {pool.post_ids.Length}");
-                
+
                 //Download the post data as a JSON string
                 string jsonFile = client.DownloadString($"https://e621.net/posts/{postIDs[i]}.json");
 
@@ -246,7 +245,7 @@ namespace Pooldl
                 try
                 {
                     //Download the file from the file URL and save it in the downloaded directory
-                    client.DownloadFile($"{FileUrl.url}", $"downloaded/{removeInvalidChars(pool.name)}/{i+1}.{FileUrl.ext}");
+                    client.DownloadFile($"{FileUrl.url}", $"downloaded/{removeInvalidChars(pool.name)}/{i + 1}.{FileUrl.ext}");
 
                     Thread.Sleep(900);
                 }
@@ -258,7 +257,7 @@ namespace Pooldl
 
                 }
             }
-            
+
             // Write a message to the console to show the downloaded files directory path
             Console.WriteLine($"\nSaved to: pooldl/downloaded/{removeInvalidChars(pool.name)}");
             Console.Write("\nFinished! Press enter to download another pool...");

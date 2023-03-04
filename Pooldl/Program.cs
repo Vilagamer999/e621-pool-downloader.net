@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 
@@ -8,11 +9,16 @@ namespace Pooldl
 {
     internal class Program
     {
+        //Create a WebClient object to make HTTP requests
+        private static readonly WebClient client = new WebClient();
 
         static void Main(string[] args)
         {
             Directory.CreateDirectory($"downloaded");
             Directory.CreateDirectory($"log");
+
+            Console.Title = "e621-pool-downloader.net";
+            
             printLogo();
             
             try
@@ -21,6 +27,7 @@ namespace Pooldl
             }
             catch (Exception ex)
             {
+                //If an exception is thrown, log the error to a file and prompt the user to check the log folder for details
                 File.WriteAllText($"log/{DateTime.Now.ToString("dd-MM-yyyy HH-mm-ss")}.log", ex.ToString());
                 Console.WriteLine("An error has occured (probably invalid or blacklisted pool), please check the log folder.");
                 Console.WriteLine("Press any key to continue...");
@@ -31,6 +38,7 @@ namespace Pooldl
 
         }
 
+        //Prompt the user to input a pool URL or ID, or type 'lucky' to download a random pool
         private static void userInput()
         {
 
@@ -41,12 +49,12 @@ namespace Pooldl
             Console.Write("> ");
             string input = Console.ReadLine().ToLower();
 
-            //check if input is "lucky"
+            //Check if the input is "lucky"
             if (input == "lucky" || input == "l")
             {
-
+                
+            //Keep generating random pool IDs until a valid one is found
             This_makes_csharp_developers_cry:
-
                 Random rnd = new Random();
                 int poolID = rnd.Next(1, 32651);
 
@@ -54,27 +62,31 @@ namespace Pooldl
                 if (checkIfValid(poolID))
                 {
                     Console.WriteLine("\nDownloading pool: " + poolID);
+
+                    //Download the pool with the specified ID
                     getPool(poolID);
 
                 }
                 else if (checkIfValid(poolID) == false)
                 {
+                    //If the pool ID is invalid, generate a new random ID by braking the c# code etiquette
                     goto This_makes_csharp_developers_cry;
                 }
             }
             else
             {
-                //check if input is a pool url
+                //Check if the input is a pool url
                 if (input.Contains("https://e621.net/pools/"))
                 {
                     try
                     {
-                        //get pool id from url
+                        //Extract the pool ID from the URL and download the pool
                         string poolID = input.Substring(23);
                         getPool(Convert.ToInt32(poolID));
                     }
                     catch (Exception ex)
                     {
+                        //If the input is invalid, prompt the user to try again
                         if (ex is FormatException || ex is OverflowException)
                         {
                             Console.WriteLine("\nInvalid input, try again...");
@@ -87,9 +99,10 @@ namespace Pooldl
                     }
 
                 }
+                //Check if the input is a pool url but short
                 else if (input.Contains("e621.net/pools/"))
                 {
-                    //get pool id from url(short)
+                    //Extract the pool ID from the short URL and download the pool
                     string poolID = input.Substring(15);
 
                     try
@@ -113,7 +126,7 @@ namespace Pooldl
                 {
                     try
                     {
-                        //input is a pool id
+                        //If the input is a pool id string, download the pool
                         getPool(Convert.ToInt32(input));
                     }
                     catch (Exception ex)
@@ -134,20 +147,28 @@ namespace Pooldl
 
         }
 
+        //Remove all invalid characters from the file name so that windows doesn't throw a fit
         private static object removeInvalidChars(string name)
         {
-            //jankman says hi
-            return name.Replace(":", "").Replace("?", "").Replace("_", " ").Replace("'", "").Replace("*", " ");
+            var sb = new StringBuilder(name);
+            sb.Replace(":", "")
+                .Replace("?", "")
+                .Replace("_", " ")
+                .Replace("'", "")
+                .Replace("*", " ");
+
+            return sb.ToString();
         }
 
+        //Check if the given lucky pool id is valid
         private static bool checkIfValid(int poolID)
         {
-            WebClient client = new WebClient();
             client.Headers.Clear();
             client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
 
             try
             {
+                //Try to download the pool json, return true if it exists
                 string json = client.DownloadString($"https://e621.net/pools/{poolID}.json");
                 JsonSerializer.Deserialize<Pools>(json);
 
@@ -155,22 +176,27 @@ namespace Pooldl
             }
             catch (Exception)
             {
+                //Print an error message if the pool does not exist or is invalid and return false
                 Console.WriteLine("Random number invalid, retrying...");
                 Thread.Sleep(1000);
+                
                 return false;
             }
         }
 
+        //Download the given pool data from the e621.net API
         private static void getPool(int poolID)
         {
-            WebClient client = new WebClient();
+            //Clear the client headers and set a new special user-agent header
             client.Headers.Clear();
             client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
 
             try
             {
+                //Download the pool data as a JSON string
                 string json = client.DownloadString($"https://e621.net/pools/{poolID}.json");
 
+                //Deserialize the JSON string into a Pools object
                 var pool = JsonSerializer.Deserialize<Pools>(json);
 
                 Console.WriteLine($"Downloading: {removeInvalidChars(pool.name)} by {removeInvalidChars(pool.creator_name)}");
@@ -179,24 +205,28 @@ namespace Pooldl
             }
             catch (WebException)
             {
+                //Write an error message to the console if pool is not found
                 Console.WriteLine("\nPool not found");
                 Thread.Sleep(3000);
                 Console.Clear();
                 userInput();
             }
+            
         }
 
+        //Download the individual images one by one using the pool data above
         private static void downloadPool(int[] post_ids, Pools pool)
         {
-            var num = 1;
-            WebClient client = new WebClient();
+            
             client.Headers.Clear();
             client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
 
             Directory.CreateDirectory($"downloaded/{removeInvalidChars(pool.name)}");
 
-            int[] postIDs = new int[pool.post_ids.Length];
+            //Create an array to store the post IDs from the pool
+            var postIDs = new int[pool.post_ids.Length];
 
+            //Loop through each post ID in the pool
             for (int i = 0; i < pool.post_ids.Length; i++)
             {
                 client.Headers.Clear();
@@ -204,28 +234,32 @@ namespace Pooldl
 
                 postIDs[i] = pool.post_ids[i];
                 Console.WriteLine($"\nDownloading post {i + 1} of {pool.post_ids.Length}");
-
+                
+                //Download the post data as a JSON string
                 string jsonFile = client.DownloadString($"https://e621.net/posts/{postIDs[i]}.json");
+
+                //Deserializethe the JSON string into a PostResponse object and get the file URL
                 var FileUrl = JsonSerializer.Deserialize<PostResponse>(jsonFile).post.file;
 
                 Console.WriteLine(FileUrl.url);
 
                 try
                 {
-                    client.DownloadFile($"{FileUrl.url}", $"downloaded/{removeInvalidChars(pool.name)}/{num}.{FileUrl.ext}");
+                    //Download the file from the file URL and save it in the downloaded directory
+                    client.DownloadFile($"{FileUrl.url}", $"downloaded/{removeInvalidChars(pool.name)}/{i+1}.{FileUrl.ext}");
 
                     Thread.Sleep(900);
-                    num++;
                 }
                 catch (WebException)
                 {
-
+                    //Write a skipping message to the console and continue with the next post ID if download fails
                     Console.WriteLine("Skipping");
                     continue;
 
                 }
             }
-
+            
+            // Write a message to the console to show the downloaded files directory path
             Console.WriteLine($"\nSaved to: pooldl/downloaded/{removeInvalidChars(pool.name)}");
             Console.Write("\nFinished! Press enter to download another pool...");
             Console.ReadKey();
@@ -237,8 +271,8 @@ namespace Pooldl
         private static void printLogo()
         {
             //ASCII art by "jgs" on https://www.asciiart.eu/
-            
-            Console.Title = "e621-pool-downloader.net";
+            //(Modified by yours truly)
+
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write("===========================================>  \n   _ |ooooooooooooooooooooooooooooooooo|\n  |1\\|~~ _- ~~ --~ ~ ~~-_/\\O_~~ ~~__~~ |\n  |_||~_~ [");
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -257,8 +291,8 @@ namespace Pooldl
             Console.Write("net");
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write("]=====>\n\n");
-            
-            //where did the cool ascii logos go? ;-;
+
+            //Where did the cool ascii logos go? ;-;
         }
     }
 }

@@ -13,7 +13,8 @@ namespace Pooldl
         {
             Directory.CreateDirectory($"downloaded");
             Directory.CreateDirectory($"log");
-
+            printLogo();
+            
             try
             {
                 userInput();
@@ -231,6 +232,33 @@ namespace Pooldl
             Console.Clear();
             userInput();
 
+        }
+
+        private static void printLogo()
+        {
+            //ASCII art by "jgs" on https://www.asciiart.eu/
+            
+            Console.Title = "e621-pool-downloader.net";
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("===========================================>  \n   _ |ooooooooooooooooooooooooooooooooo|\n  |1\\|~~ _- ~~ --~ ~ ~~-_/\\O_~~ ~~__~~ |\n  |_||~_~ [");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("e621");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("]--~`~  ~_ ~_~~ ~ ~~~_~ |\n   _ |ooooooooooooooooooooooooooooooooo|\n  |2\\|~~ ~-- ~~~ _~~~/\\O ~~~ ~~ ~~ ^^- |\n  |_||  ~~~-- ~~ [");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("pool");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("]~~ ~~ ~^^ ^-- -~|\n   _ |ooooooooooooooooooooooooooooooooo|\n  |3\\|-- ~~~ ^~ -~~~  ^~~ O/\\ ~~--~ _~ |\n  |_|| ~~ ~^~  ^~- ~~`` [");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("downloader");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("]^^~|\n     |ooooooooooooooooooooooooooooooooo|\n=================================[");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("net");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("]=====>\n\n");
+            
+            //where did the cool ascii logos go? ;-;
         }
     }
 }

@@ -4,6 +4,8 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace Pooldl
 {
@@ -17,6 +19,8 @@ namespace Pooldl
             Directory.CreateDirectory($"downloaded");
             Directory.CreateDirectory($"log");
             Console.Title = "e621-pool-downloader.net";
+
+            printLogo();
 
             try
             {
@@ -38,7 +42,6 @@ namespace Pooldl
         //Prompt the user to input a pool URL or ID, or type 'lucky' to download a random pool
         private static void userInput()
         {
-            printLogo();
 
             Console.WriteLine("Please enter either:\n");
             Console.WriteLine("- Pool URL / ID (e.g. https://e621.net/pools/8804)\n");
@@ -140,12 +143,12 @@ namespace Pooldl
         //Download the given pool data from the e621.net API
         private static void getPool(int poolID)
         {
-            //Clear the client headers and set a new special user-agent header
-            client.Headers.Clear();
-            client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
-
             try
             {
+                //Clear the client headers and set a new special user-agent header
+                client.Headers.Clear();
+                client.Headers.Add("user-agent", "PoolDownloaderNET/0.01 (by NotVila on e621)");
+
                 //Download the pool data as a JSON string
                 string json = client.DownloadString($"https://e621.net/pools/{poolID}.json");
 
@@ -156,15 +159,14 @@ namespace Pooldl
 
                 downloadPool(pool.post_ids, pool);
             }
-            catch (WebException)
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
-                //Write an error message to the console if pool is not found
+                //Handle the specific exception for 404 Not Found
                 Console.WriteLine("\nPool not found...");
                 Thread.Sleep(1000);
                 Console.Clear();
                 userInput();
             }
-
         }
 
         //Download the individual images one by one using the pool data above
@@ -201,7 +203,7 @@ namespace Pooldl
                     //Download the file from the file URL and save it in the downloaded directory
                     client.DownloadFile($"{FileUrl.url}", $"downloaded/{removeInvalidChars(pool.name)}/{i + 1}.{FileUrl.ext}");
 
-                    Thread.Sleep(900);
+                    Thread.Sleep(800);
                 }
                 catch (Exception)
                 {

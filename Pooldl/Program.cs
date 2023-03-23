@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -50,26 +50,21 @@ namespace Pooldl
             //Check if the input is "lucky"
             if (input == "lucky" || input == "l")
             {
-
-            //Keep generating random pool IDs until a valid one is found
-            This_makes_csharp_developers_cry:
+                //Keep generating random pool IDs until a valid one is found
+                bool isValidPoolID = false;
                 Random rnd = new Random();
-                int poolID = rnd.Next(1, 32651);
+                int poolID = 0;
 
-
-                if (checkIfValid(poolID))
+                while (!isValidPoolID)
                 {
-                    Console.WriteLine("\nDownloading pool: " + poolID);
-
-                    //Download the pool with the specified ID
-                    getPool(poolID);
-
+                    poolID = rnd.Next(1, 50000);
+                    isValidPoolID = checkIfValid(poolID);
                 }
-                else if (checkIfValid(poolID) == false)
-                {
-                    //If the pool ID is invalid, generate a new random ID by braking the c# code etiquette
-                    goto This_makes_csharp_developers_cry;
-                }
+
+                Console.WriteLine("\nDownloading pool: " + poolID);
+
+                //Download the pool with the specified ID
+                getPool(poolID);
             }
             else
             {

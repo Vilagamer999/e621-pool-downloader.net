@@ -1,7 +1,7 @@
-﻿ using System;
+﻿using System;
 using System.IO;
 using System.Net;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Text.Json;
 using System.Threading;
 
@@ -39,7 +39,7 @@ namespace Pooldl
         private static void userInput()
         {
             printLogo();
-            
+
             Console.WriteLine("Please enter either:\n");
             Console.WriteLine("- Pool URL / ID (e.g. https://e621.net/pools/8804)\n");
             Console.WriteLine("- Pool ID (e.g. 7438) \n");
@@ -68,50 +68,16 @@ namespace Pooldl
             }
             else
             {
-                //Check if the input is a pool url
-                if (input.Contains("https://e621.net/pools/"))
+                if (input.Contains("https://e621.net/pools/") || input.Contains("e621.net/pools/"))
                 {
-                    try
-                    {
-                        //Extract the pool ID from the URL and download the pool
-                        string poolID = input.Substring(23);
-                        getPool(Convert.ToInt32(poolID));
-                    }
-                    catch (Exception ex)
-                    {
-                        //If the input is invalid, prompt the user to try again
-                        if (ex is FormatException || ex is OverflowException)
-                        {
-                            Console.WriteLine("\nInvalid input, try again...");
-                            Thread.Sleep(1000);
-                            Console.Clear();
-                            userInput();
-                        }
-
-                        throw;
-                    }
-
-                }
-                //Check if the input is a pool url but short
-                else if (input.Contains("e621.net/pools/"))
-                {
-                    //Extract the pool ID from the short URL and download the pool
-                    string poolID = input.Substring(15);
-
+                    string poolID = input.Replace("https://e621.net/pools/", "").Replace("e621.net/pools/", "");
                     try
                     {
                         getPool(Convert.ToInt32(poolID));
                     }
                     catch (Exception ex)
                     {
-                        if (ex is FormatException || ex is OverflowException)
-                        {
-                            Console.WriteLine("\nInvalid input, try again...");
-                            Thread.Sleep(1000);
-                            Console.Clear();
-                            userInput();
-                        }
-
+                        HandleInvalidInput();
                         throw;
                     }
                 }
@@ -119,39 +85,33 @@ namespace Pooldl
                 {
                     try
                     {
-                        //If the input is a pool id string, download the pool
                         getPool(Convert.ToInt32(input));
                     }
                     catch (Exception ex)
                     {
-                        if (ex is FormatException || ex is OverflowException)
-                        {
-                            Console.WriteLine("\nInvalid input, try again...");
-                            Thread.Sleep(1000);
-                            Console.Clear();
-                            userInput();
-                        }
-
+                        HandleInvalidInput();
                         throw;
                     }
-
                 }
             }
+
+            void HandleInvalidInput()
+            {
+                Console.WriteLine("\nInvalid input, try again...");
+                Thread.Sleep(1000);
+                Console.Clear();
+                userInput();
+            }
+
 
         }
 
         //Remove all invalid characters from the file name so that windows doesn't throw a fit
-        private static object removeInvalidChars(string name)
+        private static string removeInvalidChars(string name)
         {
-            var sb = new StringBuilder(name);
-            sb.Replace(":", "")
-                .Replace("?", "")
-                .Replace("_", " ")
-                .Replace("'", "")
-                .Replace("*", " ");
-
-            return sb.ToString();
+            return Regex.Replace(name, @"[:?_'*\\]", " ");
         }
+
 
         //Check if the given lucky pool id is valid
         private static bool checkIfValid(int poolID)
@@ -167,7 +127,7 @@ namespace Pooldl
 
                 return true;
             }
-            catch (Exception)
+            catch (WebException)
             {
                 //Print an error message if the pool does not exist or is invalid and return false
                 Console.WriteLine("Random number invalid, retrying...");
